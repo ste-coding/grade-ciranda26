@@ -88,6 +88,11 @@ header{position:sticky;top:0;z-index:30;background:rgba(1,26,72,.9);backdrop-fil
 .field.err input,.field.err textarea{border-color:#ff5a5a;background:rgba(255,90,90,.1)}
 .errmsg{color:#ff8a8a;font-size:11px;display:none}
 .field.err .errmsg{display:block}
+.field.toggle{margin-top:2px}
+.field.toggle .chk{display:flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:600;color:var(--ink)}
+.field.toggle .chk input{width:18px;height:18px;accent-color:var(--pink);cursor:pointer;flex:none}
+.field.toggle .chk-note{font-weight:400;color:var(--ink-soft);font-size:12px}
+.oculto-tag{font-family:'IBM Plex Sans';font-weight:600;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,.12);color:var(--ink-soft);padding:2px 7px;border-radius:6px;white-space:nowrap;vertical-align:middle}
 .frow-actions{display:flex;justify-content:space-between;align-items:center;margin-top:15px;gap:10px}
 .btn-del{background:transparent;border:1.5px solid rgba(255,90,90,.4);color:#ff8a8a;font-weight:600;font-size:13px;padding:9px 14px;border-radius:11px;cursor:pointer}
 .btn-del:active{transform:scale(.97)}
@@ -187,7 +192,9 @@ function normalize(arr){
   return arr.map(it=>({
     id:it.id, inicio:it.inicio, fim:it.fim, pilar:it.pilar||'geral', tipo:it.tipo||'',
     publico:it.publico||'', formato:it.formato||'', titulo:it.titulo,
-    palestrante:it.palestrante||'', sala:it.sala||'', resumo:it.resumo||''
+    palestrante:it.palestrante||'', bio:it.bio||'', sala:it.sala||'',
+    alocacao:it.alocacao||'', resumo:it.resumo||'', costura:it.costura||'',
+    interno: !!it.interno
   }));
 }
 /* assinatura curta da grade — muda se qualquer dado ou a ordem mudar */
@@ -237,7 +244,11 @@ function fieldHTML(it){
       <div class="field" data-k="publico"><label>Público-alvo</label><input type="text" value="${esc(it.publico)}" placeholder="Ex: Todos"></div>
       <div class="field" data-k="tipo"><label>Tipo</label><input type="text" value="${esc(it.tipo)}" placeholder="Ex: Magna"></div>
       <div class="field" data-k="formato"><label>Formato</label><input type="text" value="${esc(it.formato)}" placeholder="Ex: Expositiva"></div>
+      <div class="field full" data-k="bio"><label>Bio do palestrante (resumida)</label><textarea placeholder="Aparece ao tocar no nome do palestrante no painel">${esc(it.bio)}</textarea></div>
+      <div class="field full" data-k="alocacao"><label>Alocação (staff)</label><input type="text" value="${esc(it.alocacao)}" placeholder="Quem cobre essa pauta — preencher amanhã"></div>
       <div class="field full" data-k="resumo"><label>Briefing</label><textarea placeholder="Resumo / briefing completo da pauta">${esc(it.resumo)}</textarea></div>
+      <div class="field full" data-k="costura"><label>Costura / transição</label><textarea placeholder="Texto de costura: como o MC conecta esta pauta à próxima">${esc(it.costura)}</textarea></div>
+      <div class="field full toggle" data-k="interno"><label class="chk"><input type="checkbox" ${it.interno?'checked':''}> Ocultar na Versão Foco <span class="chk-note">(item interno — ex: gestão de risco)</span></label></div>
     </div>
     <div class="frow-actions">
       <button class="btn-del" data-act="del">Excluir pauta</button>
@@ -254,7 +265,7 @@ function cardHTML(it){
     <div class="ehead" data-p="${p}" data-act="toggle">
       <span class="bar"></span>
       <span class="etime">${esc(time)}</span>
-      <span class="einfo"><span class="t">${esc(it.titulo)||'<span style=opacity:.5>(sem título)</span>'}</span><span class="s">${esc(sub)}</span></span>
+      <span class="einfo"><span class="t">${esc(it.titulo)||'<span style=opacity:.5>(sem título)</span>'}</span><span class="s">${esc(sub)}${it.interno?' <span class="oculto-tag">oculto no foco</span>':''}</span></span>
       <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     ${openId===it.id?fieldHTML(it):''}
@@ -274,7 +285,8 @@ function captureOpenForm(){
   const it=DATA.find(x=>x.id===openId); if(!it) return true;
   card.querySelectorAll('.field').forEach(f=>{
     const k=f.dataset.k; const inp=f.querySelector('input,select,textarea');
-    if(inp) it[k]=inp.value;
+    if(!inp) return;
+    it[k] = (inp.type==='checkbox') ? inp.checked : inp.value;
   });
   return true;
 }
@@ -317,7 +329,7 @@ document.getElementById('list').addEventListener('input',()=>{ setDirty(true); }
 
 document.getElementById('addBtn').addEventListener('click',()=>{
   captureOpenForm();
-  const it={id:seq++,inicio:'',fim:'',pilar:'voz',tipo:'',publico:'',formato:'',titulo:'',palestrante:'',sala:'',resumo:''};
+  const it={id:seq++,inicio:'',fim:'',pilar:'voz',tipo:'',publico:'',formato:'',titulo:'',palestrante:'',bio:'',sala:'',alocacao:'',resumo:'',costura:'',interno:false};
   DATA.unshift(it); openId=it.id; setDirty(true); renderList();
   window.scrollTo({top:0,behavior:'smooth'});
 });

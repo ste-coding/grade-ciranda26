@@ -223,6 +223,45 @@ nav{
 /* edit link */
 .editlink{position:fixed;top:14px;right:50%;transform:translateX(280px);z-index:60}
 @media(max-width:592px){.editlink{transform:none;right:14px}}
+
+/* ===== Foco view ===== */
+.foco-now{border-radius:24px;padding:20px 18px;margin:14px 0 12px;position:relative;overflow:hidden;
+  background:linear-gradient(125deg,var(--pink),var(--burgundy));box-shadow:0 0 0 1px rgba(255,191,205,.3) inset}
+.foco-now.idle{background:rgba(255,255,255,.06);box-shadow:0 0 0 1px var(--card-line) inset}
+.foco-now .lab{font-family:'Barriecito',cursive;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);display:flex;align-items:center;gap:8px}
+.foco-now.idle .lab{color:var(--ink-soft)}
+.foco-now .lab .d{width:9px;height:9px;border-radius:50%;background:var(--yellow);animation:blink 1s steps(2,end) infinite}
+.foco-now .ttl{font-family:'Dela Gothic One',cursive;font-size:24px;line-height:1.12;letter-spacing:-.5px;margin:10px 0 12px}
+.foco-now .row{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;font-weight:500}
+.foco-now .row .k{color:rgba(255,255,255,.65);font-size:11px;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:1px}
+.foco-now .multi{font-size:15px;line-height:1.5}
+.foco-now .multi .m{padding:8px 0;border-top:1px solid rgba(255,255,255,.18)}
+.foco-now .multi .m:first-child{border-top:none}
+.foco-next{background:var(--card);border:1px solid rgba(255,227,108,.4);border-radius:20px;padding:15px 16px;margin-bottom:18px}
+.foco-next .lab{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
+.foco-next .ttl{font-weight:700;font-size:16px;line-height:1.25}
+.foco-next .mt{font-size:13px;color:var(--ink-soft);margin-top:3px;font-variant-numeric:tabular-nums}
+.foco-list .daytitle{margin-top:4px}
+.foco-item{display:flex;align-items:center;gap:13px;padding:11px 4px;border-bottom:1px solid var(--card-line);cursor:pointer}
+.foco-item:last-child{border-bottom:none}
+.foco-item .fb{flex:none;width:5px;align-self:stretch;border-radius:3px;background:var(--geral)}
+.foco-item[data-p="voz"] .fb{background:var(--voz)}.foco-item[data-p="eco"] .fb{background:var(--eco)}.foco-item[data-p="acorde"] .fb{background:var(--acorde)}
+.foco-item .ft{flex:none;font-family:'Dela Gothic One',cursive;font-size:12.5px;color:var(--yellow);width:46px;font-variant-numeric:tabular-nums}
+.foco-item .fi{flex:1;min-width:0}
+.foco-item .fi .t{font-weight:600;font-size:14.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foco-item .fi .s{font-size:12px;color:var(--ink-soft);margin-top:1px}
+
+/* palestrante toggle + bio in modal */
+.palestrante-toggle{background:none;border:none;padding:0;cursor:pointer;color:var(--pink-light);font:inherit;font-weight:600;text-align:left;display:inline-flex;align-items:center;gap:6px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.palestrante-toggle .car{transition:transform .2s;font-size:10px;text-decoration:none}
+.palestrante-toggle.open .car{transform:rotate(180deg)}
+.bio-block{margin-top:10px;background:rgba(255,21,150,.1);border:1px solid rgba(255,191,205,.25);border-radius:12px;padding:11px 13px;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.9)}
+.bio-block.empty{color:var(--ink-soft);font-style:italic}
+.m-aloc .v.todo{color:var(--ink-soft);font-style:italic}
+.m-costura{margin-top:14px}
+.m-costura h4{font-family:'Barriecito',cursive;font-size:15px;letter-spacing:1px;color:var(--yellow);margin-bottom:8px}
+.m-costura p{font-size:14px;line-height:1.55;color:rgba(255,255,255,.9)}
+.m-costura p.empty{color:var(--ink-soft);font-style:italic}
 </style>
 </head>
 <body>
@@ -259,7 +298,11 @@ nav{
 
 <nav>
   <div class="nav-inner">
-    <button class="tab on" data-tab="timeline">
+    <button class="tab on" data-tab="foco">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/></svg>
+      <span>Foco</span>
+    </button>
+    <button class="tab" data-tab="timeline">
       <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
       <span>Timeline</span>
     </button>
@@ -293,7 +336,7 @@ const BIN_BASE   = 'https://api.jsonbin.io/v3/b';
 
 const PILAR_LABEL = {voz:'Voz',eco:'Eco',acorde:'Acorde',geral:'Geral'};
 let DATA = [];
-let state = {tab:'timeline', filter:'todos'};
+let state = {tab:'foco', filter:'todos'};
 
 /* ---- time helpers ---- */
 const toMin = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; };
@@ -329,6 +372,7 @@ function tick(){
   updateNow();
   if(state.tab==='timeline') refreshTimelineStatus();
   if(state.tab==='agora') render();
+  if(state.tab==='foco') render();
 }
 function currentItems(){ return DATA.filter(it=>statusOf(it)==='current'); }
 function updateNow(){
@@ -367,7 +411,8 @@ function pass(it){ return state.filter==='todos' || it.pilar===state.filter; }
 function render(){
   const m=document.getElementById('main');
   if(!DATA.length) return;
-  if(state.tab==='timeline') m.innerHTML=renderTimeline();
+  if(state.tab==='foco') m.innerHTML=renderFoco();
+  else if(state.tab==='timeline') m.innerHTML=renderTimeline();
   else if(state.tab==='sala') m.innerHTML=renderSala();
   else m.innerHTML=renderAgora();
 }
@@ -447,6 +492,56 @@ function renderAgora(){
   return banner+html;
 }
 
+/* ---- Foco: versão otimizada p/ staff (oculta itens internos) ---- */
+function focoPool(){ return DATA.filter(it=>!it.interno && pass(it)); }
+function renderFoco(){
+  const pool=focoPool();
+  if(!pool.length) return '<div class="empty-state"><span class="big">∅</span>Nenhuma pauta para este pilar.</div>';
+  const cur=pool.filter(it=>statusOf(it)==='current');
+  const nexts=pool.filter(it=>statusOf(it)==='next');
+  const nx=nexts[0];
+
+  // bloco AGORA
+  let nowHtml;
+  if(cur.length===1){
+    const c=cur[0];
+    nowHtml=`<div class="foco-now" data-id="${c.id}" style="cursor:pointer"><div class="lab"><span class="d"></span>no ar agora</div>
+      <div class="ttl">${esc(c.titulo)}</div>
+      <div class="row">
+        <span><span class="k">Sala</span>${esc(c.sala||'—')}</span>
+        <span><span class="k">Até</span>${esc(c.fim||'—')}</span>
+        <span><span class="k">Alocação</span>${c.alocacao?esc(c.alocacao):'a definir'}</span>
+      </div></div>`;
+  } else if(cur.length>1){
+    nowHtml=`<div class="foco-now"><div class="lab"><span class="d"></span>${cur.length} pautas no ar</div>
+      <div class="multi">${cur.map(c=>`<div class="m"><b>${esc(c.sala||'—')}</b> · ${esc(c.titulo)} <span style="opacity:.7">(até ${esc(c.fim)})</span></div>`).join('')}</div></div>`;
+  } else {
+    nowHtml=`<div class="foco-now idle"><div class="lab">sem pauta no ar</div>
+      <div class="ttl" style="font-size:19px">${nx?'Próxima às '+esc(nx.inicio):'Evento encerrado'}</div></div>`;
+  }
+
+  // bloco A SEGUIR (só faz sentido quando há algo no ar)
+  let nextHtml='';
+  if(cur.length && nx){
+    nextHtml=`<div class="foco-next" data-id="${nx.id}" style="cursor:pointer"><div class="lab">a seguir</div>
+      <div class="ttl">${esc(nx.titulo)}</div>
+      <div class="mt">${esc(nx.inicio)}${nx.fim?'–'+esc(nx.fim):''} · ${esc(nx.sala||'—')}</div></div>`;
+  }
+
+  // resto do dia: próximas (exclui passadas e a atual) — enxuto
+  const excludeId = (cur.length && nx) ? nx.id : -1;   // evita duplicar a que já aparece em "a seguir"
+  const upcoming=pool.filter(it=>statusOf(it)==='next' && it.id!==excludeId);
+  let listHtml='';
+  if(upcoming.length){
+    listHtml='<div class="foco-list"><div class="daytitle">próximas · '+upcoming.length+'</div>'+
+      upcoming.map(it=>`<div class="foco-item" data-p="${it.pilar||'geral'}" data-id="${it.id}">
+        <span class="fb"></span><span class="ft">${esc(it.inicio)}</span>
+        <span class="fi"><span class="t">${esc(it.titulo)}</span><span class="s">${esc(it.sala||'—')}${it.alocacao?' · '+esc(it.alocacao):''}</span></span>
+      </div>`).join('')+'</div>';
+  }
+  return nowHtml+nextHtml+listHtml;
+}
+
 /* ---- modal ---- */
 document.getElementById('main').addEventListener('click',e=>{
   const el=e.target.closest('[data-id]'); if(!el) return;
@@ -458,23 +553,38 @@ function openModal(id){
   const rows=[];
   rows.push(['Horário', esc(it.inicio)+(it.fim?' — '+esc(it.fim):'')]);
   if(it.sala) rows.push(['Sala', esc(it.sala)]);
-  if(it.palestrante) rows.push(['Palestrante', esc(it.palestrante)]);
+  if(it.palestrante){
+    if(it.bio){
+      rows.push(['Palestrante',
+        `<button class="palestrante-toggle" id="palToggle">${esc(it.palestrante)} <span class="car">▾</span></button>
+         <div class="bio-block" id="bioBlock" hidden>${esc(it.bio)}</div>`]);
+    } else {
+      rows.push(['Palestrante', esc(it.palestrante)]);
+    }
+  }
   if(it.publico) rows.push(['Público-alvo', esc(it.publico)]);
   if(it.formato) rows.push(['Formato', esc(it.formato)]);
   if(it.tipo) rows.push(['Tipo', esc(it.tipo)]);
+  // alocação: slot sempre visível (preenchido depois)
+  rows.push(['Alocação', it.alocacao
+      ? esc(it.alocacao)
+      : '<span class="todo">a definir</span>', it.alocacao?'':'aloc']);
   document.getElementById('modal').innerHTML=`
     <div class="grip"></div>
     <span class="m-pill ${pl}">${PILAR_LABEL[pl]||pl}</span>
     <div class="m-time">${esc(it.inicio)}${it.fim?' – '+esc(it.fim):''}</div>
     <div class="m-title">${esc(it.titulo)}</div>
-    <div class="m-rows">${rows.map(r=>`<div class="m-row"><div class="k">${r[0]}</div><div class="v">${r[1]}</div></div>`).join('')}</div>
+    <div class="m-rows">${rows.map(r=>`<div class="m-row ${r[2]==='aloc'?'m-aloc':''}"><div class="k">${r[0]}</div><div class="v ${r[2]==='aloc'?'todo':''}">${r[1]}</div></div>`).join('')}</div>
     ${it.resumo?`<div class="m-brief"><h4>briefing</h4><p>${esc(it.resumo)}</p></div>`:'<div class="m-brief"><p style="color:var(--ink-soft);font-style:italic">Sem briefing cadastrado.</p></div>'}
+    <div class="m-costura"><h4>costura</h4>${it.costura?`<p>${esc(it.costura)}</p>`:'<p class="empty">— costura a preencher —</p>'}</div>
     <button class="m-close" id="mclose">Fechar</button>`;
   document.getElementById('modalbg').classList.add('open');
   document.body.style.overflow='hidden';
 }
 function closeModal(){ document.getElementById('modalbg').classList.remove('open'); document.body.style.overflow=''; }
 document.getElementById('modalbg').addEventListener('click',e=>{
+  const tog=e.target.closest('#palToggle');
+  if(tog){ const b=document.getElementById('bioBlock'); if(b){ b.hidden=!b.hidden; tog.classList.toggle('open',!b.hidden);} return; }
   if(e.target.id==='modalbg' || e.target.id==='mclose') closeModal();
 });
 </script>
