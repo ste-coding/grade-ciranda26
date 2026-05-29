@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#012462">
+<title>CirandaMEJ'26 — Editar Grade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=IBM+Plex+Sans:wght@400;500;600;700&family=Barriecito&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#ff1596;--pink-light:#ffbfcd;--navy:#012462;--navy-deep:#011a48;
+  --yellow:#ffe36c;--burgundy:#8d0b53;
+  --voz:#ff1596;--eco:#ffe36c;--acorde:#ffbfcd;--geral:#5a6b94;
+  --ink:#fff;--ink-soft:rgba(255,255,255,.62);
+  --card:rgba(255,255,255,.06);--card-line:rgba(255,255,255,.12);
+  --field:rgba(255,255,255,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--ink);min-height:100vh;
+  background-image:
+    radial-gradient(120% 90% at 85% -10%, rgba(255,21,150,.26) 0%, transparent 50%),
+    radial-gradient(110% 80% at -10% 110%, rgba(255,227,108,.14) 0%, transparent 55%);
+  -webkit-font-smoothing:antialiased;padding-bottom:130px;
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px}
+
+header{position:sticky;top:0;z-index:30;background:rgba(1,26,72,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--card-line)}
+.head-inner{max-width:680px;margin:0 auto;padding:14px 16px}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand .ciranda{font-family:'Dela Gothic One',cursive;font-size:20px;letter-spacing:-.5px}
+.brand .ciranda em{font-style:normal;color:var(--pink)}
+.brand .sub{font-family:'Barriecito',cursive;font-size:12px;color:var(--yellow);letter-spacing:.8px;margin-top:2px}
+.backlink{font-size:13px;font-weight:600;color:var(--pink-light);text-decoration:none;border:1.5px solid var(--card-line);padding:7px 13px;border-radius:999px}
+
+.notice{
+  background:linear-gradient(100deg,rgba(255,227,108,.16),rgba(255,21,150,.12));
+  border:1px solid rgba(255,227,108,.4);border-radius:16px;padding:13px 15px;margin:16px 0 4px;
+  font-size:13.5px;line-height:1.5;display:flex;gap:11px;align-items:flex-start;
+}
+.notice .ic{flex:none;font-size:18px;line-height:1}
+.notice b{color:var(--yellow)}
+
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0}
+.btn{border:none;cursor:pointer;font-family:'IBM Plex Sans';font-weight:700;font-size:14px;padding:11px 16px;border-radius:13px;transition:.16s;display:inline-flex;align-items:center;gap:7px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-yellow{background:var(--yellow);color:var(--navy)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--card-line)}
+.btn-ico{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+.count{font-size:13px;color:var(--ink-soft);margin:4px 2px 14px}
+
+/* card */
+.ecard{background:var(--card);border:1px solid var(--card-line);border-radius:18px;margin-bottom:11px;overflow:hidden;transition:.18s}
+.ecard.open{border-color:var(--pink);box-shadow:0 0 0 1px var(--pink) inset}
+.ecard::before{content:none}
+.ehead{display:flex;align-items:center;gap:12px;padding:14px 15px;cursor:pointer;position:relative}
+.ehead .bar{position:absolute;left:0;top:0;bottom:0;width:5px}
+.ehead[data-p="voz"] .bar{background:var(--voz)}
+.ehead[data-p="eco"] .bar{background:var(--eco)}
+.ehead[data-p="acorde"] .bar{background:var(--acorde)}
+.ehead[data-p="geral"] .bar{background:var(--geral)}
+.etime{font-family:'Dela Gothic One',cursive;font-size:13px;color:var(--yellow);font-variant-numeric:tabular-nums;flex:none;width:48px}
+.einfo{flex:1;min-width:0}
+.einfo .t{font-weight:700;font-size:14.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.einfo .s{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.chev{flex:none;width:20px;height:20px;stroke:var(--ink-soft);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.ecard.open .chev{transform:rotate(180deg)}
+
+/* form */
+.eform{display:none;padding:4px 15px 18px;border-top:1px solid var(--card-line)}
+.ecard.open .eform{display:block}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-soft)}
+.field label .req{color:var(--pink)}
+.field input,.field select,.field textarea{
+  font-family:'IBM Plex Sans';font-size:14px;color:var(--ink);
+  background:var(--field);border:1.5px solid var(--card-line);border-radius:11px;padding:10px 12px;width:100%;transition:.15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pink);background:rgba(255,21,150,.08)}
+.field textarea{resize:vertical;min-height:78px;line-height:1.45}
+.field select option{background:var(--navy-deep)}
+.field.err input,.field.err textarea{border-color:#ff5a5a;background:rgba(255,90,90,.1)}
+.errmsg{color:#ff8a8a;font-size:11px;display:none}
+.field.err .errmsg{display:block}
+.frow-actions{display:flex;justify-content:space-between;align-items:center;margin-top:15px;gap:10px}
+.btn-del{background:transparent;border:1.5px solid rgba(255,90,90,.4);color:#ff8a8a;font-weight:600;font-size:13px;padding:9px 14px;border-radius:11px;cursor:pointer}
+.btn-del:active{transform:scale(.97)}
+
+/* save bar */
+.savebar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(1,26,72,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--card-line);padding:13px 16px calc(13px + env(safe-area-inset-bottom))}
+.savebar-inner{max-width:680px;margin:0 auto;display:flex;gap:11px;align-items:center}
+.savebar .hint{flex:1;font-size:12px;color:var(--ink-soft);line-height:1.35}
+.savebar .hint b{color:var(--yellow)}
+.btn-save{background:var(--yellow);color:var(--navy);font-size:15px;padding:14px 22px;border-radius:14px;flex:none}
+.dirty-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pink);margin-left:6px;vertical-align:middle;opacity:0;transition:.2s}
+.dirty .dirty-dot{opacity:1}
+
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);z-index:60;background:var(--pink);color:#fff;font-weight:700;font-size:14px;padding:12px 20px;border-radius:13px;opacity:0;pointer-events:none;transition:.25s;box-shadow:0 10px 30px -8px rgba(255,21,150,.6)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading{text-align:center;padding:70px 20px;color:var(--ink-soft);font-family:'Dela Gothic One',cursive}
+.stale{position:fixed;left:0;right:0;bottom:0;z-index:55;background:#c4304f;display:none;padding:13px 16px calc(13px + env(safe-area-inset-bottom))}
+.stale.show{display:block}
+.stale-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.stale .msg{flex:1;font-size:13.5px;line-height:1.4;font-weight:600;color:#fff}
+.stale .msg b{color:var(--yellow)}
+.stale button{flex:none;border:none;cursor:pointer;background:#fff;color:#c4304f;font-family:'IBM Plex Sans';font-weight:700;font-size:14px;padding:11px 16px;border-radius:12px}
+.stale button:active{transform:scale(.97)}
+@media(max-width:520px){.fgrid{grid-template-columns:1fr}.savebar .hint{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="brandrow">
+      <div class="brand">
+        <div class="ciranda">Ciranda<em>MEJ</em>'26</div>
+        <div class="sub">editor da grade</div>
+      </div>
+      <a class="backlink" href="./index.html">← Ver painel</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="notice">
+    <span class="ic">⚠️</span>
+    <div>As edições acontecem só no seu navegador. Ao clicar em <b>Salvar alterações</b>, um novo <b>data.json</b> é baixado. <b>Substitua o data.json no repositório e aguarde o deploy</b> do GitHub Pages para que o painel reflita as mudanças.</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn btn-primary" id="addBtn">
+      <svg class="btn-ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Nova pauta
+    </button>
+    <button class="btn btn-ghost" id="sortBtn">
+      <svg class="btn-ico" viewBox="0 0 24 24"><path d="M3 6h13M3 12h9M3 18h5M18 8V20M18 20l-3-3M18 20l3-3"/></svg>
+      Reordenar por horário
+    </button>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="list"><div class="loading">carregando grade…</div></div>
+</main>
+
+<div class="savebar">
+  <div class="savebar-inner">
+    <div class="hint" id="hint">Edições não salvas vão se perder ao recarregar.</div>
+    <button class="btn btn-save" id="saveBtn">Salvar alterações<span class="dirty-dot"></span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="stale" id="stale">
+  <div class="stale-inner">
+    <div class="msg">A grade mudou desde que você abriu. <b>Recarregue antes de salvar</b> para não sobrescrever as alterações de outra pessoa.</div>
+    <button id="reloadBtn">Recarregar grade</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG JSONBIN — cole aqui os dados do seu bin
+   ------------------------------------------------------------
+   BIN_ID     = o ID do bin (ex: '665f...')
+   MASTER_KEY = a X-Master-Key (leitura + ESCRITA) — só fica aqui no editor
+   Como gerar: ver o README, seção "JSONBin".
+   ============================================================ */
+const BIN_ID     = '6a190a48ddf5aa59f772a4ad';
+const MASTER_KEY = '$2a$10$jRPfkQ37CuRJqmx885zRvu84bZ9zyvQgEy2s.orc.UE60v51zpUsq';
+const BIN_BASE   = 'https://api.jsonbin.io/v3/b';
+/* ============================================================ */
+
+const PILARES=[['voz','Voz'],['eco','Eco'],['acorde','Acorde'],['geral','Geral']];
+let DATA=[]; let openId=null; let dirty=false; let seq=1;
+let loadedSig=null;            // assinatura da grade como foi carregada / salva por último
+
+/* normaliza ordem dos campos (usado p/ salvar e p/ comparar versões) */
+function normalize(arr){
+  return arr.map(it=>({
+    id:it.id, inicio:it.inicio, fim:it.fim, pilar:it.pilar||'geral', tipo:it.tipo||'',
+    publico:it.publico||'', formato:it.formato||'', titulo:it.titulo,
+    palestrante:it.palestrante||'', sala:it.sala||'', resumo:it.resumo||''
+  }));
+}
+/* assinatura curta da grade — muda se qualquer dado ou a ordem mudar */
+function signature(arr){
+  const s=JSON.stringify(normalize(arr)); let h=5381;
+  for(let i=0;i<s.length;i++){ h=(((h<<5)+h)^s.charCodeAt(i))>>>0; }
+  return h.toString(36)+':'+s.length;
+}
+function readBin(){
+  return fetch(`${BIN_BASE}/${BIN_ID}/latest`, {headers:{'X-Master-Key':MASTER_KEY}})
+    .then(r=>{ if(!r.ok) throw new Error('bin '+r.status); return r.json(); })
+    .then(j=> Array.isArray(j) ? j : j.record);
+}
+function applyData(d){
+  DATA=d.map(x=>({...x}));
+  seq=Math.max(0,...DATA.map(x=>+x.id||0))+1;
+  loadedSig=signature(DATA);
+  renderList();
+}
+
+readBin()
+  .catch(e=>{ console.warn('[CirandaMEJ] Bin indisponível, usando data.json local:', e.message); return fetch('./data.json').then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }); })
+  .then(applyData)
+  .catch(()=>{ document.getElementById('list').innerHTML='<div class="loading" style="color:#ff8a8a">erro ao carregar a grade — confira BIN_ID e MASTER_KEY no topo do arquivo</div>'; });
+
+/* recarregar do servidor (descarta alterações locais) */
+document.getElementById('reloadBtn').addEventListener('click',()=>{
+  if(dirty && !confirm('Isso vai descartar suas alterações não salvas e carregar a versão atual do servidor. Continuar?')) return;
+  document.getElementById('stale').classList.remove('show');
+  openId=null; setDirty(false);
+  readBin().then(applyData).then(()=>showToast('Grade recarregada do servidor')).catch(()=>showToast('Erro ao recarregar',true));
+});
+
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function setDirty(v){ dirty=v; document.querySelector('.savebar-inner').classList.toggle('dirty',v); document.getElementById('hint').innerHTML = v?'<b>Você tem alterações não salvas.</b>':'Edições não salvas vão se perder ao recarregar.'; }
+
+function fieldHTML(it){
+  const opts=PILARES.map(p=>`<option value="${p[0]}" ${it.pilar===p[0]?'selected':''}>${p[1]}</option>`).join('');
+  return `<div class="eform">
+    <div class="fgrid">
+      <div class="field" data-k="inicio"><label>Início <span class="req">*</span></label><input type="time" value="${esc(it.inicio)}"><div class="errmsg">obrigatório</div></div>
+      <div class="field" data-k="fim"><label>Fim <span class="req">*</span></label><input type="time" value="${esc(it.fim)}"><div class="errmsg">obrigatório</div></div>
+      <div class="field full" data-k="titulo"><label>Título <span class="req">*</span></label><input type="text" value="${esc(it.titulo)}" placeholder="Nome da pauta"><div class="errmsg">obrigatório</div></div>
+      <div class="field" data-k="pilar"><label>Pilar</label><select>${opts}</select></div>
+      <div class="field" data-k="sala"><label>Sala</label><input type="text" value="${esc(it.sala)}" placeholder="Ex: Auditório Entre Nós"></div>
+      <div class="field" data-k="palestrante"><label>Palestrante</label><input type="text" value="${esc(it.palestrante)}" placeholder="Nome / empresa"></div>
+      <div class="field" data-k="publico"><label>Público-alvo</label><input type="text" value="${esc(it.publico)}" placeholder="Ex: Todos"></div>
+      <div class="field" data-k="tipo"><label>Tipo</label><input type="text" value="${esc(it.tipo)}" placeholder="Ex: Magna"></div>
+      <div class="field" data-k="formato"><label>Formato</label><input type="text" value="${esc(it.formato)}" placeholder="Ex: Expositiva"></div>
+      <div class="field full" data-k="resumo"><label>Briefing</label><textarea placeholder="Resumo / briefing completo da pauta">${esc(it.resumo)}</textarea></div>
+    </div>
+    <div class="frow-actions">
+      <button class="btn-del" data-act="del">Excluir pauta</button>
+      <button class="btn btn-yellow" data-act="apply">Aplicar</button>
+    </div>
+  </div>`;
+}
+
+function cardHTML(it){
+  const p=it.pilar||'geral';
+  const time=(it.inicio||'--:--');
+  const sub=[it.sala,it.palestrante].filter(Boolean).join(' · ')||'sem sala / palestrante';
+  return `<div class="ecard ${openId===it.id?'open':''}" data-id="${it.id}">
+    <div class="ehead" data-p="${p}" data-act="toggle">
+      <span class="bar"></span>
+      <span class="etime">${esc(time)}</span>
+      <span class="einfo"><span class="t">${esc(it.titulo)||'<span style=opacity:.5>(sem título)</span>'}</span><span class="s">${esc(sub)}</span></span>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    ${openId===it.id?fieldHTML(it):''}
+  </div>`;
+}
+
+function renderList(){
+  const l=document.getElementById('list');
+  l.innerHTML = DATA.length?DATA.map(cardHTML).join(''):'<div class="loading">nenhuma pauta — adicione uma nova</div>';
+  document.getElementById('count').textContent = DATA.length+' pauta'+(DATA.length===1?'':'s')+' na grade';
+}
+
+/* read inputs from open form into the data object (no validation) */
+function captureOpenForm(){
+  if(openId==null) return true;
+  const card=document.querySelector(`.ecard[data-id="${openId}"]`); if(!card) return true;
+  const it=DATA.find(x=>x.id===openId); if(!it) return true;
+  card.querySelectorAll('.field').forEach(f=>{
+    const k=f.dataset.k; const inp=f.querySelector('input,select,textarea');
+    if(inp) it[k]=inp.value;
+  });
+  return true;
+}
+
+/* validate the currently open form; returns true if ok */
+function validateOpenForm(){
+  const card=document.querySelector(`.ecard[data-id="${openId}"]`); if(!card) return true;
+  let ok=true;
+  ['inicio','fim','titulo'].forEach(k=>{
+    const f=card.querySelector(`.field[data-k="${k}"]`);
+    const inp=f.querySelector('input');
+    if(!inp.value.trim()){ f.classList.add('err'); ok=false; } else f.classList.remove('err');
+  });
+  return ok;
+}
+
+document.getElementById('list').addEventListener('click',e=>{
+  const actEl=e.target.closest('[data-act]');
+  const card=e.target.closest('.ecard'); if(!card) return;
+  const id=+card.dataset.id;
+  const act=actEl?actEl.dataset.act:null;
+
+  if(act==='toggle'){
+    if(openId===id){ captureOpenForm(); openId=null; }
+    else { captureOpenForm(); openId=id; }
+    renderList();
+  } else if(act==='apply'){
+    captureOpenForm();
+    if(!validateOpenForm()) { showToast('Preencha início, fim e título',true); return; }
+    setDirty(true); openId=null; renderList(); showToast('Pauta atualizada');
+  } else if(act==='del'){
+    if(confirm('Excluir esta pauta da grade?')){
+      DATA=DATA.filter(x=>x.id!==id); openId=null; setDirty(true); renderList(); showToast('Pauta excluída');
+    }
+  }
+});
+
+/* live capture so toggling/saving keeps latest typed values */
+document.getElementById('list').addEventListener('input',()=>{ setDirty(true); });
+
+document.getElementById('addBtn').addEventListener('click',()=>{
+  captureOpenForm();
+  const it={id:seq++,inicio:'',fim:'',pilar:'voz',tipo:'',publico:'',formato:'',titulo:'',palestrante:'',sala:'',resumo:''};
+  DATA.unshift(it); openId=it.id; setDirty(true); renderList();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+document.getElementById('sortBtn').addEventListener('click',()=>{
+  captureOpenForm();
+  const toMin=t=>{if(!t)return 99999;const[a,b]=t.split(':').map(Number);return a*60+b;};
+  DATA.sort((a,b)=>toMin(a.inicio)-toMin(b.inicio));
+  setDirty(true); renderList(); showToast('Reordenado por horário');
+});
+
+document.getElementById('saveBtn').addEventListener('click',async()=>{
+  captureOpenForm();
+  // valida TODAS as pautas
+  const bad=DATA.find(it=>!String(it.inicio).trim()||!String(it.fim).trim()||!String(it.titulo).trim());
+  if(bad){
+    openId=bad.id; renderList();
+    setTimeout(validateOpenForm,30);
+    const card=document.querySelector(`.ecard[data-id="${bad.id}"]`); if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+    showToast('Há pautas sem início, fim ou título',true); return;
+  }
+
+  const saveBtn=document.getElementById('saveBtn');
+  saveBtn.disabled=true; const oldLabel=saveBtn.innerHTML; saveBtn.innerHTML='Salvando…';
+
+  // 1) checa se a grade mudou no servidor desde que abrimos
+  let serverArr;
+  try{ serverArr=await readBin(); }
+  catch(e){ saveBtn.disabled=false; saveBtn.innerHTML=oldLabel; showToast('Erro ao verificar o servidor',true); return; }
+
+  if(signature(serverArr)!==loadedSig){
+    saveBtn.disabled=false; saveBtn.innerHTML=oldLabel;
+    document.getElementById('stale').classList.add('show');
+    showToast('A grade mudou no servidor',true);
+    return;
+  }
+
+  // 2) grava no bin
+  const out=normalize(DATA);
+  try{
+    const r=await fetch(`${BIN_BASE}/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY},body:JSON.stringify(out)});
+    if(!r.ok) throw new Error('PUT '+r.status);
+  }catch(e){ saveBtn.disabled=false; saveBtn.innerHTML=oldLabel; showToast('Erro ao salvar no servidor',true); return; }
+
+  // 3) sincronizado — atualiza assinatura e baixa cópia de backup
+  loadedSig=signature(DATA);
+  setDirty(false);
+  document.getElementById('stale').classList.remove('show');
+  const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='data.json'; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(url);
+
+  saveBtn.disabled=false; saveBtn.innerHTML=oldLabel;
+  showToast('Salvo no servidor ✓ (backup baixado)');
+});
+
+let toastT;
+function showToast(msg,err){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.style.background = err?'#c4304f':'var(--pink)';
+  t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+</script>
+</body>
+</html>
